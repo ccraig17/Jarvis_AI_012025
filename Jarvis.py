@@ -58,4 +58,5 @@ def takeCommand():
             return "None"
     return query
 
-takeCommand()
+#takeCommand()
+
