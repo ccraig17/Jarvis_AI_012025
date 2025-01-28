@@ -1,10 +1,13 @@
-import pyttsx3  #Text to Speech (pip install pyttsx3)
+import pyttsx3 #Text to Speech (pip install pyttsx3)
 import datetime  #allows access to current date and time...
 import speech_recognition as sr
+import pyaudio
 import wikipedia #pip install wikipedia
 import smtplib # used to send email (using Jarvis)
 import webbrowser as wb
 import os #used to have access to the Mac Operating System
+
+from wikipedia import languages
 
 engine = pyttsx3.init()
 
@@ -48,12 +51,12 @@ def takeCommand():
     r = sr.Recognizer()
     with sr.Microphone() as source: #means with the sr.Microphone() use it in the function as the "source" variable.
         print("Listening.......")
-        r.pause_threshold = 1  # waits for one second then listen for audio
+        r.pause_threshold = 3  # waits for one second then listen for audio
         audio = r.listen(source) #the words listened by the microphone that's spoken into the microphone (the source) is place into the audio variable.
         print("Done listening.......")
     try:
         print("Recognizing.......")
-        query = r.recognize_google(audio) # r.recognize_google() does NOT work b/c PyAudio is NOT install due to Wheel issue.
+        query = r.recognize_google(audio, language="en-us") # Requires PyAudio; ensure it's installed or use an alternative.
         print(f"User said: {query}\n")
     except Exception as issue:
         print(issue)
@@ -65,10 +68,12 @@ def sendEmail(send_to, message):
     server = smtplib.SMTP("smtp.gmail.com",587)
     server.ehlo()
     server.starttls()
-    server.login("colino.craig@gmail.com","<password>") #use my password here when PyAudio is working for the Microphone
+    server.login("colino.craig@gmail.com", "<password>", initial_response_ok=True) #use my password here when PyAudio is working for the Microphone
     server.sendmail("colino.craig@gmail.com", send_to, message)
     server.close()
 
+
+#takeCommand()
 
 #This is the main function; its call First when the programme is run in order to initiate "Jarvis"
 #All the functions/methods are create above and passed into the Main Function in order to be executed.
@@ -83,7 +88,7 @@ if __name__ == "__main__":
         elif "wikipedia" in query:
             speak("Searching Wikipedia.......")
             query = query.replace("wikipedia", "")
-            results = wikipedia.summary(query, sentences=2)
+            results = wikipedia.summary(query, sentences=2) #"sentences=2" returns first 2 sentences of the search
             speak("According to Wikipedia")
             print(results)
             speak(results)
