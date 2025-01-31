@@ -95,9 +95,9 @@ if __name__ == "__main__":
                 speak(results)
             except wikipedia.exceptions.PageError:
                 speak(f"Sorry Sir!! I can't find any results for {query}. Please try a different query.")
-            except wikipedia.exceptions.DisambiguationError as e:
+            except wikipedia.exceptions.DisambiguationError as error:
                 speak("The query is too ambiguous. Here are some possible suggestions:")
-                for option in e.options:
+                for option in error.options:
                     print(option)
                     speak(option)
             except Exception as e:
@@ -116,12 +116,10 @@ if __name__ == "__main__":
                 speak("Sorry Sir!! Unable to send this email.")
         elif "search in chrome" in query: #used import web_browser as wb
             speak("What should I search?")
-            chrome_path = "/Applications/Google Chrome.app"
-            #chrome_path = "/Applications/Google Chrome.app/Contents/MacOS %s"
-            #wb.register("chrome", None, wb.BackgroundBrowser(chrome_path))
+            chrome_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+            wb.register("chrome", None, wb.BackgroundBrowser(chrome_path))
             search = takeCommand().lower()
-            wb.get(chrome_path).open(search+".com")
-
+            wb.get("chrome").open_new_tab(search+".com")
 
         #below are commands to logout, shutdown and restart the computer/system
         elif "logout" in query:
