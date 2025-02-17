@@ -66,9 +66,10 @@ def takeCommand():
     return query
 
 email_list = {
-        "Colin": "colino.craig@gmail.com",
-        "Nola": "nnoollaa79@gmail.com",
-        "Ethan": "shinobiroblox244@gmail.com"
+    #make keys lowercase for comparing and ensure the dictionary keys are stored in lowercase
+        "james": "colino.craig@gmail.com",
+        "nola": "nnoollaa79@gmail.com",
+        "ethan": "shinobiroblox244@gmail.com"
     }
 
 """def sendEmail(recipient_name, subject="test", content="this is the new 'send email' function from python!"):
