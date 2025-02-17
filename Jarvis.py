@@ -5,9 +5,11 @@ import webbrowser as wb
 import pyttsx3  # Text to Speech (pip install pyttsx3)
 import speech_recognition as sr
 import wikipedia  # pip install wikipedia
-from speech_recognition import UnknownValueError
+from PIL import ImageGrab
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-engine = pyttsx3.init()
+engine = pyttsx3.init() #initialize the Python text to Speech (pyttsx3) and place it into a variable to be used
 
 
 def speak(audio):
@@ -51,7 +53,7 @@ def takeCommand():
         print("Listening.......")
         r.adjust_for_ambient_noise(source, duration=0.2)  # adjust
         r.pause_threshold = 1  # waits for one second then listen for audio
-        audio = r.listen(source) #the words listened by the microphone that's spoken into the microphone (the source) is place into the audio variable.
+        audio = r.listen(source) #the words listened by the microphone that's spoken into the microphone, the spoken word is place into the audio variable.
         print("Done listening.......")
     try:
         print("Recognizing.......")
@@ -63,16 +65,71 @@ def takeCommand():
         return "None"
     return query
 
-def sendEmail(send_to, message):
+email_list = {
+        "Colin": "colino.craig@gmail.com",
+        "Nola": "nnoollaa79@gmail.com",
+        "Ethan": "shinobiroblox244@gmail.com"
+    }
+
+"""def sendEmail(recipient_name, subject="test", content="this is the new 'send email' function from python!"):
     server = smtplib.SMTP("smtp.gmail.com",587)
     server.ehlo()
     server.starttls()
-    server.login("colino.craig@gmail.com", "fwev yhkz qpbx iggt") #use my App password for gmail 
-    server.sendmail("colino.craig@gmail.com", send_to, message)
-    server.close()
+    server.login("colino.craig@gmail.com", "fwev yhkz qpbx iggt") #use my App password for gmail
+    #server.sendmail("colino.craig@gmail.com", to, message)
+
+    message = MIMEMultipart("This is a Test email sent using Python and Speech Recognition")
+    message["From"] = "colino.craig@gmail.com"
+    message["To"] = recipient_name
+    message["Subject"] = "This is a Test email sent using Python and Speech Recognition"
+    message.attach(message)
+    try:
+        server = smtplib.SMTP("smtp.gmail.com",587)
+        server.starttls()
+        server.login("colino.craig@gmail.com", "fwev yhkz qpbx iggt")
+        server.sendmail("colino.craig@gmail.com", recipient_name, message.as_string())
+        server.quit()
+        print(f"Email sent to {recipient_name}!!")
+    except Exception as mistake:
+        print(f"An error occurred while sending the email: {mistake}")
+    server.close()"""
+
+def sendEmail2(to_email, subject, content):
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+    sender_email = "colino.craig@gmail.com"
+    password = "fwev yhkz qpbx iggt"
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = sender_email
+        msg["To"] = to_email
+        msg["Subject"] = subject
+        msg.attach(MIMEText(content, "plain"))
+
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, to_email, msg.as_string())
+        server.quit()
+        print(f"Email sent to {to_email}!!")
+    except Exception as error:
+        print(f"An error occurred while sending the email: {error}")
+        speak("Sorry Sir!! Unable to send this email.")
+
+def takeScreenshot(name):
+    try:
+        img = ImageGrab.grab()
+        save_path = f"/Users/ccraig/Desktop/Jarvis_Folder/{name}.png"
+        if not os.path.exists("/Users/ccraig/Desktop/Jarvis_Folder/"):
+            os.makedirs("/Users/ccraig/Desktop/Jarvis_Folder/")
+        img.save(save_path)
+    except Exception as e:
+        print(f"An error occurred while capturing the screenshot: {e}")
+        speak("Sorry Sir, the was an issue capturing the screenshot.")
 
 
-#sendEmail("colino.craig@gmail.com", "Good Morning From Python!")
+#sendEmail("colin", subject="test", content="this is the new 'send email' function from python!")
+#send_Email("colin", content="this is the new 'send email' function from python!")
 #takeCommand()
 
 #This is the main function; its call First when the programme is run in order to initiate "Jarvis"
@@ -103,23 +160,39 @@ if __name__ == "__main__":
             except Exception as e:
                 speak("Sorry Sir! An error occurred while searching Wikipedia.")
                 print(f"Error:{e}")
+
         elif "send email" in query:
-            try:
-                speak("What should I say in the email?")
+            speak("Who should I send the email to?")
+            recipient_name = takeCommand().lower()
+
+            if recipient_name and recipient_name in email_list:
+                to_email = email_list[recipient_name]
+
+                speak("What should be the subject of the email?")
+                subject = takeCommand()
+                if not subject:
+                    speak("Subject NOT recognized. Exiting.")
+                    continue
+                speak("What would you like the to say in the email?")
                 content = takeCommand()
-                to = "colino.craig@gmail.com"
-                sendEmail(to, content) #sendEmail() from smtp_lib import library
-                speak("Email has been sent!")
-                speak("The content sent was: " + content)
-            except Exception as e:
-                print(e)
-                speak("Sorry Sir!! Unable to send this email.")
+                if not content:
+                    speak("Message not recognized. Exiting.")
+                    continue
+                sendEmail2(to_email, subject, content)
+            else:
+                speak("Sorry Sir, Name not Found in your EMAIL List. Please try again or add the name to the EMAIL List.")
+
+            
         elif "search in chrome" in query: #used import web_browser as wb
             speak("What should I search?")
             chrome_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
             wb.register("chrome", None, wb.BackgroundBrowser(chrome_path))
             search = takeCommand().lower()
             wb.get("chrome").open_new_tab(search+".com")
+        elif "screenshot" in query:
+            name = takeCommand()
+            takeScreenshot(name)
+            speak("Screenshot taken!")
 
         #below are commands to logout, shutdown and restart the computer/system
         elif "logout" in query:
@@ -134,9 +207,10 @@ if __name__ == "__main__":
             os.startfile(os.path.join(songs_dir, songs[0])) # plays/start the first song in the LIST
         elif "goodbye" in query or "bye" in query:
             speak("Goodbye Sir!!")
-        elif "go offline" in query:
+        elif "Go offline" in query:
             speak("Going offline Sir!!")
             quit()
+
 
 
 
