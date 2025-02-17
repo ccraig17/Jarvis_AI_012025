@@ -71,7 +71,7 @@ email_list = {
         "nola": "nnoollaa79@gmail.com",
         "ethan": "shinobiroblox244@gmail.com"
     }
-
+#this was the first function that worked
 """def sendEmail(recipient_name, subject="test", content="this is the new 'send email' function from python!"):
     server = smtplib.SMTP("smtp.gmail.com",587)
     server.ehlo()
